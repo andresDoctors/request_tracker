@@ -43,6 +43,23 @@ const dump_request = (browser_req) => {
   return write_path
 }
 
+const host_res_handler = (host_res, server_req, write_path) => {
+
+  host_res.setEncoding("utf8")
+
+  host_res.on("data", (chunk) => {
+    console.log('http_data')
+    fs.writeFileSync(write_path + '.res', chunk, { flag: 'a' })
+  })
+
+  host_res.on("end", () => {
+    console.log('http_end')
+    server_req.end()
+    const readStream = fs.createReadStream(write_path + '.res')
+    readStream.pipe(server_res)
+  })
+}
+
 const download_response = (write_path, browser_req, server_res) => {
 
   const options = {
@@ -53,20 +70,7 @@ const download_response = (write_path, browser_req, server_res) => {
   }
 
   var server_req = https.request(options, (host_res) => {
-    host_res.setEncoding("utf8");
-
-    host_res.on("data", (chunk) => {
-      console.log('http_data')
-      fs.writeFileSync(write_path + '.res', chunk, { flag: 'a' })
-    })
-
-    host_res.on("end", () => {
-      console.log('http_end')
-      server_req.end()
-      const readStream = fs.createReadStream(write_path + '.res')
-      readStream.pipe(server_res)
-    })
-  })
+    host_res_handler(host_res, server_req, write_path)})
 
   server_req.end()
 }
