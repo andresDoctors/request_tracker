@@ -5,7 +5,7 @@ const readline = require('readline').createInterface({
 })
 
 
-const clean = () => {
+const clean = (next) => {
 
   const files = fs.readdirSync('./')
 
@@ -14,7 +14,9 @@ const clean = () => {
       fs.rm('dumps', {recursive: true, force: true}, () => {
         console.log(`dumps deleted`)})}
 
-    readline.close()})
+    readline.close()
+    if(next) {
+      next()}})
 }
 
 if (require.main === module) {
