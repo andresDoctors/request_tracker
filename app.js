@@ -70,31 +70,30 @@ const host_res_handler = (host_res, server_res, write_path) => {
 
 }
 
-const download_response = (write_path, browser_req, server_res) => {
-
-  const options = {
-    host: "www.rappi.com.ar",
+const request_options = (host, browser_req) => {
+  return {
+    host: host,
     port: 443,
     path: browser_req.url,
-    method: 'GET',
+    method: browser_req.method,
   }
-
-  var server_req = https.request(options, (host_res) => {
-    host_res_handler(host_res, server_req, write_path)})
-
-  server_req.end()
 }
 
-const setup = () => {
+const setup = (host) => {
 
   const server = http.createServer(app)
   server.listen(5000)
 
   app.get('*', (browser_req, server_res) => {
     const write_path = dump_request(browser_req)
-    download_response(write_path, browser_req, server_res)})
+    const server_req = https.request(request_options(host, browser_req), (host_res) => {
+      host_res_handler(host_res, server_res, write_path)})
+
+    server_req.end()})
 }
 
 if (require.main === module) {
-  setup()
+  let host = process.argv[2]
+  host = (!host) ? 'www.rappi.com.ar' : host
+  setup(host)
 }
