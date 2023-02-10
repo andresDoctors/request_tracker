@@ -24,9 +24,9 @@ const make_directories = (dir) => {
   })
 }
 
-const dump_request = (req) => {
+const dump_request = (browser_req) => {
 
-  const { rawHeaders, url } = req
+  const { rawHeaders, url } = browser_req
   const mini_req = { rawHeaders, url }
 
   const dir = parse_url(url)
@@ -43,42 +43,42 @@ const dump_request = (req) => {
   return write_path
 }
 
-const download_response = (write_path, req, ress) => {
+const download_response = (write_path, browser_req, server_res) => {
 
   const options = {
     host: "www.rappi.com.ar",
     port: 443,
-    path: req.url,
+    path: browser_req.url,
     method: 'GET',
   }
 
-  var req = https.request(options, (res) => {
-    res.setEncoding("utf8");
+  var server_req = https.request(options, (host_res) => {
+    host_res.setEncoding("utf8");
 
-    res.on("data", (chunk) => {
+    host_res.on("data", (chunk) => {
       console.log('http_data')
       fs.writeFileSync(write_path + '.res', chunk, { flag: 'a' })
     })
 
-    res.on("end", () => {
+    host_res.on("end", () => {
       console.log('http_end')
-      req.end()
+      server_req.end()
       const readStream = fs.createReadStream(write_path + '.res')
-      readStream.pipe(ress)
+      readStream.pipe(server_res)
     })
   })
 
-  req.end()
+  server_req.end()
 }
 
-const server = http.createServer((req, res) => {
+const server = http.createServer((browser_req, server_res) => {
 
-  const {dir, filename} = parse_url(req.url)
+  const {dir, filename} = parse_url(browser_req.url)
   console.log(`dir: \"${dir}\"`, `filename: \"${filename}\"`) //debug
 
-  const write_path = dump_request(dir, filename, req)
+  const write_path = dump_request(browser_req)
 
-  download_response(write_path, req, res)
+  download_response(write_path, browser_req, server_res)
 
 })
 server.listen(5000)
