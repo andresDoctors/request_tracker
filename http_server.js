@@ -19,7 +19,7 @@ const request_options = (host, browser_req) => {
 const setup = (host) => {
 
   const server = http.createServer(app)
-  server.listen(5000)
+  server.listen(80)
 
   app.get('*', (browser_req, server_res) => {
     const write_path = dump_request(browser_req)
@@ -28,5 +28,6 @@ const setup = (host) => {
 
     server_req.end()})
 }
+
 
 module.exports = {setup}
