@@ -5,6 +5,9 @@ const express = require("express")
 const app = express()
 
 
+const clean = require('./clean')
+
+
 const parse_url = (url) => {
 
   let arr = url.split('/')
@@ -93,6 +96,7 @@ const setup = (host) => {
 }
 
 if (require.main === module) {
+  clean()
   let host = process.argv[2]
   host = (!host) ? 'www.rappi.com.ar' : host
   setup(host)
