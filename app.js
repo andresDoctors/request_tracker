@@ -43,21 +43,29 @@ const dump_request = (browser_req) => {
   return write_path
 }
 
-const host_res_handler = (host_res, server_req, write_path) => {
+const host_res_handler = (host_res, server_res, write_path) => {
 
   host_res.setEncoding("utf8")
 
-  host_res.on("data", (chunk) => {
-    console.log('http_data')
-    fs.writeFileSync(write_path + '.res', chunk, { flag: 'a' })
-  })
+  host_res
 
-  host_res.on("end", () => {
-    console.log('http_end')
-    server_req.end()
-    const readStream = fs.createReadStream(write_path + '.res')
-    readStream.pipe(server_res)
-  })
+    .on("data", (chunk) => {
+      fs.writeFileSync(write_path + '.data' + '.res', chunk, { flag: 'a' })})
+
+    .on("readable", () => {
+      let chunk;
+      while (null !== (chunk = host_res.read())) {
+        fs.writeFileSync(write_path + '.readable' + '.res', chunk, { flag: 'a' })}})
+
+    .on("end", () => {
+      if (fs.existsSync(write_path + '.data' + '.res')) {
+        const readStream = fs.createReadStream(write_path + '.data' + '.res')
+        readStream.pipe(server_res)}})
+
+    .on("close", () => {})
+
+    .on("error", (err) => {})
+
 }
 
 const download_response = (write_path, browser_req, server_res) => {
