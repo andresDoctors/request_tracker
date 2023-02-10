@@ -11,7 +11,7 @@ const parse_url = (url) => {
   arr.pop()
   arr.shift()
 
-  let dir = './'
+  let dir = './dumps/'
   for (let i = 0; i < arr.length; i++) {
     dir += arr[i] + '/';
   }
@@ -35,7 +35,7 @@ const dump_request = (browser_req) => {
   make_directories(dir)
 
   // filenames not support '?' char, so we replace it by '##' string
-  const write_path = '.' + url.replace('?', '##')
+  const write_path = './dumps/' + url.replace('?', '##')
 
   fs.writeFileSync(
     write_path + '.req',
