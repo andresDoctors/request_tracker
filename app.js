@@ -1,6 +1,8 @@
 const fs = require('fs')
 const http = require('http')
 const https = require('https')
+const express = require("express")
+const app = express()
 
 
 const parse_url = (url) => {
@@ -83,14 +85,16 @@ const download_response = (write_path, browser_req, server_res) => {
   server_req.end()
 }
 
-const server = http.createServer((browser_req, server_res) => {
+const setup = () => {
 
-  const {dir, filename} = parse_url(browser_req.url)
-  console.log(`dir: \"${dir}\"`, `filename: \"${filename}\"`) //debug
+  const server = http.createServer(app)
+  server.listen(5000)
 
-  const write_path = dump_request(browser_req)
+  app.get('*', (browser_req, server_res) => {
+    const write_path = dump_request(browser_req)
+    download_response(write_path, browser_req, server_res)})
+}
 
-  download_response(write_path, browser_req, server_res)
-
-})
-server.listen(5000)
+if (require.main === module) {
+  setup()
+}
